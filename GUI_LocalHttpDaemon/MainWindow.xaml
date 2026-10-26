@@ -1,0 +1,47 @@
+<Window x:Class="LHTTPD.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="簡易ウェブサーバー" Width="480" SizeToContent="Height"
+ ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_ClosingAsync">
+ <StackPanel Margin="16">
+  <StackPanel x:Name="SettingsPanel">
+   <Label Content="ルートフォルダの絶対パス" Target="{Binding ElementName=RootPath}" Padding="0,0,0,6" />
+   <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <TextBox x:Name="RootPath" MinHeight="28" VerticalContentAlignment="Center"
+     InputMethod.PreferredImeState="Off" />
+    <Button Grid.Column="1" Content="パス指定" Margin="8,0,0,0" Padding="12,3" Click="Browse_Click" />
+   </Grid>
+   <Label Content="HTTPのポート番号" Target="{Binding ElementName=HttpPort}" Padding="0,12,0,6" />
+   <TextBox x:Name="HttpPort" Text="80" Height="28" VerticalContentAlignment="Center"
+    MaxLength="5" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Port_PreviewTextInput"
+    DataObject.Pasting="Port_Pasting" />
+   <Label Content="HTTPSのポート番号" Target="{Binding ElementName=HttpsPort}" Padding="0,12,0,6" />
+   <TextBox x:Name="HttpsPort" Text="443" Height="28" VerticalContentAlignment="Center"
+    MaxLength="5" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="Port_PreviewTextInput"
+    DataObject.Pasting="Port_Pasting" />
+  </StackPanel>
+  <Grid Margin="0,16,0,0">
+   <Button x:Name="LogToggleButton" Content="▼ログ表示" Height="32" Width="110"
+    HorizontalAlignment="Left" Click="LogToggle_Click" />
+  <Button x:Name="RunButton" Content="実行" Height="32" Width="100"
+   HorizontalAlignment="Right" Click="Run_ClickAsync" />
+  </Grid>
+  <ListBox x:Name="AccessLog" Visibility="Collapsed" Margin="0,12,0,0"
+   FontFamily="Consolas, Yu Gothic UI" FontSize="12"
+   ScrollViewer.VerticalScrollBarVisibility="Auto"
+   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+   AutomationProperties.Name="アクセスログ" Background="Black" Foreground="White">
+   <ListBox.ItemContainerStyle>
+    <Style TargetType="ListBoxItem">
+     <Setter Property="Template">
+      <Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter /></ControlTemplate></Setter.Value>
+     </Setter>
+    </Style>
+   </ListBox.ItemContainerStyle>
+   <ListBox.ItemTemplate>
+    <DataTemplate><TextBlock Text="{Binding Text}" Foreground="{Binding Foreground}" /></DataTemplate>
+   </ListBox.ItemTemplate>
+  </ListBox>
+ </StackPanel>
+</Window>

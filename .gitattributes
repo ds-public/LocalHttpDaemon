@@ -1,0 +1,27 @@
+## Unity ##
+
+*.cs diff=csharp text eol=lf encoding=utf-8
+*.cginc text
+*.shader text eol=lf encoding=utf-8
+*.json text eol=lf encoding=utf-8
+*.txt text eol=lf encoding=utf-8
+*.csv text eol=lf encoding=utf-8
+*.xml text eol=lf encoding=utf-8
+*.mat merge=unityyamlmerge eol=lf
+*.anim merge=unityyamlmerge eol=lf
+*.unity merge=unityyamlmerge eol=lf
+*.prefab merge=unityyamlmerge eol=lf
+*.physicsMaterial2D merge=unityyamlmerge eol=lf
+*.physicMaterial merge=unityyamlmerge eol=lf
+*.asset merge=unityyamlmerge eol=lf
+*.meta merge=unityyamlmerge eol=lf
+*.controller merge=unityyamlmerge eol=lf
+
+# Solution and project documents
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.slnx text eol=lf
+*.csproj text eol=lf
+*.xaml text eol=lf
+*.md text eol=lf

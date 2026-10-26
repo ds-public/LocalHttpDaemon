@@ -1,0 +1,6 @@
+<Solution>
+	<Project Path="CLI_LocalHttpDaemon/CLI_LocalHttpDaemon.csproj" />
+	<Project Path="CLI_LocalHttpDaemon_Verification/CLI_LocalHttpDaemon_Verification.csproj" />
+	<Project Path="GUI_LocalHttpDaemon/GUI_LocalHttpDaemon.csproj" />
+	<Project Path="GUI_LocalHttpDaemon_Verification/GUI_LocalHttpDaemon_Verification.csproj" />
+</Solution>

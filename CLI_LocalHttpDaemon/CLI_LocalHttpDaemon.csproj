@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<SelfContained>true</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageRoot>$(MSBuildProjectDirectory)\..\CLI_LocalHttpDaemon_Package\</PackageRoot>
+		<!-- Visual Studio の最新状態判定後も配布物の生成を実行する。 -->
+		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="../GUI_LocalHttpDaemon/ServerSettings.cs" Link="ServerSettings.cs" />
+	</ItemGroup>
+
+	<Target Name="CreateReleasePackage" AfterTargets="Build"
+					Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true' and '$(SkipReleasePackage)' != 'true'">
+		<PropertyGroup>
+			<PackagePublishDir>$(PackageRoot)$(RuntimeIdentifier)\</PackagePublishDir>
+			<PackageStagingDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)package\</PackageStagingDir>
+			<PackageZipPath>$(PackageRoot)$(AssemblyName)-$(RuntimeIdentifier).zip</PackageZipPath>
+		</PropertyGroup>
+
+		<!-- ビルド済みの成果物を発行し、Build の再帰実行を防ぐ。 -->
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish"
+						 Properties="Configuration=$(Configuration);RuntimeIdentifier=$(RuntimeIdentifier);NoBuild=true;BuildProjectReferences=false;SkipReleasePackage=true;PublishDir=$(PackagePublishDir)" />
+		<MakeDir Directories="$(PackageStagingDir)" />
+		<Copy SourceFiles="$(PackagePublishDir)$(AssemblyName).exe" DestinationFolder="$(PackageStagingDir)" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\..\Documents\アプリケーション基本仕様.md"
+					DestinationFiles="$(PackagePublishDir)README.md" />
+		<Copy SourceFiles="$(PackagePublishDir)README.md" DestinationFolder="$(PackageStagingDir)" />
+		<ZipDirectory SourceDirectory="$(PackageStagingDir)" DestinationFile="$(PackageZipPath)" Overwrite="true" />
+		<Message Importance="high" Text="単独実行用 EXE: $(PackagePublishDir)$(AssemblyName).exe" />
+		<Message Importance="high" Text="配布用 ZIP: $(PackageZipPath)" />
+	</Target>
+
+</Project>
