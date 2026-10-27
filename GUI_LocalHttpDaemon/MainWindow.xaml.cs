@@ -9,13 +9,11 @@ using Microsoft.Win32 ;
 
 namespace LHTTPD
 {
-
 	/// <summary>
 	/// 公開設定の入力、サーバーの開始・停止、アクセスログ表示を行うウィンドウです。
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-
 		// 画面に保持するアクセスログの最大件数。
 		private const int MaximumLogEntries = 1000 ;
 
@@ -61,7 +59,6 @@ namespace LHTTPD
 			}
 			else
 			{
-
 				// 追加領域と余白の合計を初期ウィンドウ高に合わせる。
 				AccessLog.Height = Math.Max( 100, ActualHeight - AccessLog.Margin.Top ) ;
 				AccessLog.Visibility = Visibility.Visible ;
@@ -72,7 +69,6 @@ namespace LHTTPD
 		// UI スレッドでアクセスログを追加し、保持件数の上限を守る。
 		private void RecordAccess( AccessLogEntry entry )
 		{
-
 			// 保持件数の上限を超える古いログを削除して新しいログを追加する。
 			void AppendEntry()
 			{

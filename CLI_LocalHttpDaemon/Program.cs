@@ -10,13 +10,11 @@ using System.Text ;
 
 namespace LHTTPD
 {
-
 	/// <summary>
 	/// コマンドライン引数と保存設定に基づき HTTP・HTTPS サーバーを実行します。
 	/// </summary>
 	public class Program
 	{
-
 		// 既定の HTTP 待ち受けポート番号。
 		private const int DefaultHttpPort = 80 ;
 
@@ -190,7 +188,6 @@ namespace LHTTPD
 				}
 				catch( OperationCanceledException )
 				{
-
 					// Ctrl+C による正常終了
 				}
 				finally
@@ -431,7 +428,6 @@ namespace LHTTPD
 		// 要求と応答結果を制御文字のない色付きログとして出力する。
 		private static void WriteAccessLog( string method, string path, DateTime timestamp, int statusCode, string? error )
 		{
-
 			// ログ文字列の制御文字を空白に置換して単一行にする。
 			static string SingleLine( string value )
 			{
@@ -570,7 +566,6 @@ namespace LHTTPD
 				}
 				catch( CryptographicException )
 				{
-
 					// 読み込めない証明書は破棄し、新しい証明書を作成する
 					File.Delete( certificatePath ) ;
 				}

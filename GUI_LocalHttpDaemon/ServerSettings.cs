@@ -3,13 +3,11 @@ using System.Text.Json ;
 
 namespace LHTTPD
 {
-
 	/// <summary>
 	/// 設定ファイルに保存する公開ルートと HTTP・HTTPS のポートを保持します。
 	/// </summary>
 	public sealed class ServerSettings
 	{
-
 		/// <summary>
 		/// 公開ルートを取得または設定します。
 		/// </summary>
@@ -63,7 +61,6 @@ namespace LHTTPD
 		/// </summary>
 		public void Save()
 		{
-
 			// 同一フォルダの一時ファイルを置換し、書き込み失敗で前回設定を壊さない。
 			var temporaryPath = SettingsPath + "." + Guid.NewGuid().ToString( "N" ) + ".tmp" ;
 			try

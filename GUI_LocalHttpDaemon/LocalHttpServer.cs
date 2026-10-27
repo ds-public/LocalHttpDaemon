@@ -7,13 +7,11 @@ using System.Text ;
 
 namespace LHTTPD
 {
-
 	/// <summary>
 	/// ループバックアドレスで HTTP・HTTPS によるコンテンツ配信を行います。
 	/// </summary>
 	public sealed class LocalHttpServer
 	{
-
 		// 要求処理の結果を通知する任意のログコールバック。
 		private readonly Action<AccessLogEntry>? m_accessLog ;
 
@@ -116,12 +114,10 @@ namespace LHTTPD
 			}
 			catch( OperationCanceledException ) when( m_shutdown.IsCancellationRequested )
 			{
-
 				// 停止操作による待ち受け終了。
 			}
 			catch( SocketException ) when( m_shutdown.IsCancellationRequested )
 			{
-
 				// 停止時にリスナーが閉じられた。
 			}
 		}
@@ -425,7 +421,6 @@ namespace LHTTPD
 				}
 				catch( CryptographicException )
 				{
-
 					// 読み込めない証明書は破棄し、新しい証明書を作成する
 					File.Delete( certificatePath ) ;
 				}
