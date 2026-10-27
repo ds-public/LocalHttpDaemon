@@ -10,17 +10,22 @@ using System.Text ;
 
 namespace LHTTPD
 {
+
 	/// <summary>
 	/// コマンドライン引数と保存設定に基づき HTTP・HTTPS サーバーを実行します。
 	/// </summary>
 	public class Program
 	{
+
 		// 既定の HTTP 待ち受けポート番号。
 		private const int DefaultHttpPort = 80 ;
+
 		// 既定の HTTPS 待ち受けポート番号。
 		private const int DefaultHttpsPort = 443 ;
+
 		// 受信を許可するリクエストヘッダーの最大バイト数。
 		private const int MaximumHeaderBytes = 32768 ;
+
 		// コンソールログの色と出力を排他制御するロック。
 		private static readonly object m_logLock = new() ;
 
@@ -185,6 +190,7 @@ namespace LHTTPD
 				}
 				catch( OperationCanceledException )
 				{
+
 					// Ctrl+C による正常終了
 				}
 				finally
@@ -425,6 +431,7 @@ namespace LHTTPD
 		// 要求と応答結果を制御文字のない色付きログとして出力する。
 		private static void WriteAccessLog( string method, string path, DateTime timestamp, int statusCode, string? error )
 		{
+
 			// ログ文字列の制御文字を空白に置換して単一行にする。
 			static string SingleLine( string value )
 			{
@@ -441,6 +448,7 @@ namespace LHTTPD
 			{
 				text += $" — {SingleLine( error )}" ;
 			}
+
 			// GUI版と同じ優先順位で、未対応メソッドの405は黄色にする。
 			var color = error != null || statusCode == 404 || statusCode >= 500 ? ConsoleColor.Red :
 				method != "GET" || statusCode is >= 300 and < 400 ? ConsoleColor.Yellow :
@@ -562,6 +570,7 @@ namespace LHTTPD
 				}
 				catch( CryptographicException )
 				{
+
 					// 読み込めない証明書は破棄し、新しい証明書を作成する
 					File.Delete( certificatePath ) ;
 				}

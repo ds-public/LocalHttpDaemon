@@ -7,27 +7,37 @@ using System.Text ;
 
 namespace LHTTPD
 {
+
 	/// <summary>
 	/// ループバックアドレスで HTTP・HTTPS によるコンテンツ配信を行います。
 	/// </summary>
 	public sealed class LocalHttpServer
 	{
+
 		// 要求処理の結果を通知する任意のログコールバック。
 		private readonly Action<AccessLogEntry>? m_accessLog ;
+
 		// 受信を許可するリクエストヘッダーの最大バイト数。
 		private const int MaximumHeaderBytes = 32768 ;
+
 		// 待ち受けと接続処理へ停止要求を伝えるキャンセルトークンソース。
 		private readonly CancellationTokenSource m_shutdown = new() ;
+
 		// 停止時に完了を待つ接続処理の一覧。
 		private readonly List<Task> m_connections = new() ;
+
 		// ループバックアドレスで HTTP 接続を受け付けるリスナー。
 		private readonly TcpListener m_http ;
+
 		// ループバックアドレスで HTTPS 接続を受け付けるリスナー。
 		private readonly TcpListener m_https ;
+
 		// コンテンツを公開するルートフォルダーのパス。
 		private readonly string m_root ;
+
 		// HTTPS 接続に使用する証明書。準備前は null。
 		private X509Certificate2? m_certificate ;
+
 		// HTTP と HTTPS の待ち受け処理全体の完了を表すタスク。
 		private Task? m_acceptTask ;
 
@@ -106,10 +116,12 @@ namespace LHTTPD
 			}
 			catch( OperationCanceledException ) when( m_shutdown.IsCancellationRequested )
 			{
+
 				// 停止操作による待ち受け終了。
 			}
 			catch( SocketException ) when( m_shutdown.IsCancellationRequested )
 			{
+
 				// 停止時にリスナーが閉じられた。
 			}
 		}
@@ -413,6 +425,7 @@ namespace LHTTPD
 				}
 				catch( CryptographicException )
 				{
+
 					// 読み込めない証明書は破棄し、新しい証明書を作成する
 					File.Delete( certificatePath ) ;
 				}

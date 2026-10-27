@@ -3,16 +3,19 @@ using System.Windows.Media ;
 
 namespace LHTTPD
 {
+
 	/// <summary>
 	/// 画面に表示するアクセスログの本文と表示色を保持します。
 	/// </summary>
 	public sealed class AccessLogEntry
 	{
+
 		/// <summary>
 		/// 要求日時と応答結果を含むログ本文を取得します。
 		/// </summary>
 		/// <value>制御文字を空白に置換した単一行のアクセスログ。</value>
 		public string Text { get ; }
+
 		/// <summary>
 		/// 応答結果に応じたログの文字色を取得します。
 		/// </summary>
@@ -29,6 +32,7 @@ namespace LHTTPD
 		/// <param name="error">処理失敗の説明。エラーがない場合は null。</param>
 		public AccessLogEntry( string method, string path, DateTime timestamp, int statusCode, string? error = null )
 		{
+
 			// ログ文字列の制御文字を空白に置換して単一行にする。
 			static string SingleLine( string value )
 			{
@@ -45,6 +49,7 @@ namespace LHTTPD
 			{
 				Text += $" — {SingleLine( error )}" ;
 			}
+
 			// POST等の未対応メソッド(405)は警告。404や処理失敗を優先する。
 			Foreground = error != null || statusCode == 404 || statusCode >= 500 ? Brushes.Red :
 				method != "GET" || statusCode is >= 300 and < 400 ? Brushes.Yellow :
