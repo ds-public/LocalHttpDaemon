@@ -7,18 +7,37 @@ using System.Text ;
 
 namespace LHTTPD
 {
+	/// <summary>
+	/// ループバックアドレスで HTTP・HTTPS によるコンテンツ配信を行います。
+	/// </summary>
 	public sealed class LocalHttpServer
 	{
+		// 要求処理の結果を通知する任意のログコールバック。
 		private readonly Action<AccessLogEntry>? m_accessLog ;
+		// 受信を許可するリクエストヘッダーの最大バイト数。
 		private const int MaximumHeaderBytes = 32768 ;
+		// 待ち受けと接続処理へ停止要求を伝えるキャンセルトークンソース。
 		private readonly CancellationTokenSource m_shutdown = new() ;
+		// 停止時に完了を待つ接続処理の一覧。
 		private readonly List<Task> m_connections = new() ;
+		// ループバックアドレスで HTTP 接続を受け付けるリスナー。
 		private readonly TcpListener m_http ;
+		// ループバックアドレスで HTTPS 接続を受け付けるリスナー。
 		private readonly TcpListener m_https ;
+		// コンテンツを公開するルートフォルダーのパス。
 		private readonly string m_root ;
+		// HTTPS 接続に使用する証明書。準備前は null。
 		private X509Certificate2? m_certificate ;
+		// HTTP と HTTPS の待ち受け処理全体の完了を表すタスク。
 		private Task? m_acceptTask ;
 
+		/// <summary>
+		/// 公開ルートとポートを指定してサーバーを初期化します。
+		/// </summary>
+		/// <param name="root">コンテンツを公開するルートフォルダーのパス。</param>
+		/// <param name="httpPort">HTTP の待ち受けポート番号。</param>
+		/// <param name="httpsPort">HTTPS の待ち受けポート番号。</param>
+		/// <param name="accessLog">アクセスログの通知先。通知しない場合は null。</param>
 		public LocalHttpServer( string root, int httpPort, int httpsPort, Action<AccessLogEntry>? accessLog = null )
 		{
 			m_root = root ;
@@ -27,6 +46,9 @@ namespace LHTTPD
 			m_https = new TcpListener( IPAddress.Loopback, httpsPort ) ;
 		}
 
+		/// <summary>
+		/// 証明書を準備し、HTTP と HTTPS の待ち受けを開始します。
+		/// </summary>
 		public void Start()
 		{
 			try
@@ -46,6 +68,10 @@ namespace LHTTPD
 			}
 		}
 
+		/// <summary>
+		/// 待ち受けと接続処理を停止し、証明書などのリソースを解放します。
+		/// </summary>
+		/// <returns>すべての待ち受けと接続処理の終了を表すタスク。</returns>
 		public async Task StopAsync()
 		{
 			m_shutdown.Cancel() ;
@@ -66,6 +92,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 停止要求まで接続を受け付け、処理中の接続タスクを管理する。
 		private async Task AcceptAsync( TcpListener listener, bool useTls )
 		{
 			try
@@ -87,6 +114,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 接続の暗号化と要求の検証を行い、ファイル応答とアクセスログを生成する。
 		private async Task HandleClientAsync
 		(
 			TcpClient client,
@@ -108,6 +136,7 @@ namespace LHTTPD
 				var responseStatus = 0 ;
 				string? error = null ;
 
+				// 応答ステータスを記録し、文字列の HTTP 応答を送信する。
 				Task RespondAsync( Stream stream, int statusCode, string reason, string body, string contentType,
 					bool headOnly, CancellationToken token, string extraHeaders = "" )
 				{
@@ -115,6 +144,7 @@ namespace LHTTPD
 					return WriteResponseAsync( stream, statusCode, reason, body, contentType, headOnly, token, extraHeaders ) ;
 				}
 
+				// 応答ステータスを記録し、バイト列の HTTP 応答を送信する。
 				Task RespondBytesAsync( Stream stream, int statusCode, string reason, byte[] body, string contentType,
 					bool headOnly, CancellationToken token )
 				{
@@ -281,6 +311,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 拡張子に対応する MIME タイプを返す。
 		private static string GetContentType( string extension )
 		{
 			return extension.ToLowerInvariant() switch
@@ -301,6 +332,7 @@ namespace LHTTPD
 			} ;
 		}
 
+		// 文字列の本文を UTF-8 に変換して HTTP 応答を送信する。
 		private static Task WriteResponseAsync
 		(
 			Stream stream,
@@ -326,6 +358,7 @@ namespace LHTTPD
 			) ;
 		}
 
+		// HTTP ヘッダーとバイト列の本文を送信し、HEAD では本文を省略する。
 		private static async Task WriteResponseBytesAsync
 		(
 			Stream stream,
@@ -356,6 +389,7 @@ namespace LHTTPD
 			await stream.FlushAsync( cancellationToken ) ;
 		}
 
+		// 保存済みの localhost 証明書を読み込み、利用できない場合は自己署名証明書を生成する。
 		private static X509Certificate2 LoadOrCreateCertificate()
 		{
 			var folder = Path.Combine

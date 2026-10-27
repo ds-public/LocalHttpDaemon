@@ -9,14 +9,25 @@ using Microsoft.Win32 ;
 
 namespace LHTTPD
 {
+	/// <summary>
+	/// 公開設定の入力、サーバーの開始・停止、アクセスログ表示を行うウィンドウです。
+	/// </summary>
 	public partial class MainWindow : Window
 	{
+		// 画面に保持するアクセスログの最大件数。
 		private const int MaximumLogEntries = 1000 ;
+		// 画面に表示するアクセスログのコレクション。
 		private readonly ObservableCollection<AccessLogEntry> m_accessLogs = new() ;
+		// 実行中のサーバー。停止中は null。
 		private LocalHttpServer? m_server ;
+		// サーバー停止後のウィンドウ終了を許可する状態。
 		private bool m_closing ;
+		// 開始・停止処理の多重実行を防ぐ操作中フラグ。
 		private bool m_busy ;
 
+		/// <summary>
+		/// 画面を初期化し、保存済みの公開設定とログ表示を準備します。
+		/// </summary>
 		public MainWindow()
 		{
 			InitializeComponent() ;
@@ -34,6 +45,7 @@ namespace LHTTPD
 			}
 		}
 
+		// アクセスログの表示と非表示を切り替える。
 		private void LogToggle_Click( object sender, RoutedEventArgs e )
 		{
 			if( AccessLog.Visibility == Visibility.Visible )
@@ -50,8 +62,10 @@ namespace LHTTPD
 			}
 		}
 
+		// UI スレッドでアクセスログを追加し、保持件数の上限を守る。
 		private void RecordAccess( AccessLogEntry entry )
 		{
+			// 保持件数の上限を超える古いログを削除して新しいログを追加する。
 			void AppendEntry()
 			{
 				if( m_accessLogs.Count >= MaximumLogEntries )
@@ -70,6 +84,7 @@ namespace LHTTPD
 			}
 		}
 
+		// フォルダー選択ダイアログで公開ルートを設定する。
 		private void Browse_Click( object sender, RoutedEventArgs e )
 		{
 			var dialog = new OpenFolderDialog { Title = "ルートフォルダを選択", Multiselect = false } ;
@@ -79,16 +94,19 @@ namespace LHTTPD
 			}
 		}
 
+		// 入力が半角数字だけで構成されているかを判定する。
 		private static bool IsDigits( string text )
 		{
 			return text.All( character => character is >= '0' and <= '9' ) ;
 		}
 
+		// ポート入力欄への半角数字以外の入力を抑止する。
 		private void Port_PreviewTextInput( object sender, TextCompositionEventArgs e )
 		{
 			e.Handled = !IsDigits( e.Text ) ;
 		}
 
+		// ポート入力欄への半角数字以外の貼り付けを取り消す。
 		private void Port_Pasting( object sender, DataObjectPastingEventArgs e )
 		{
 			if( !e.DataObject.GetDataPresent( DataFormats.UnicodeText ) ||
@@ -98,12 +116,14 @@ namespace LHTTPD
 			}
 		}
 
+		// エラーを表示し、必要に応じて修正対象の入力欄へフォーカスを移す。
 		private void ShowError( string message, Control? target = null )
 		{
 			MessageBox.Show( this, message, "入力・実行エラー", MessageBoxButton.OK, MessageBoxImage.Error ) ;
 			target?.Focus() ;
 		}
 
+		// 公開ルートとポートを検証し、有効な設定値を出力する。
 		private bool Validate( out string root, out int httpPort, out int httpsPort )
 		{
 			root = RootPath.Text.Trim() ;
@@ -138,6 +158,7 @@ namespace LHTTPD
 			return true ;
 		}
 
+		// 設定を保存してサーバーを開始するか、実行中のサーバーを停止する。
 		private async void Run_ClickAsync( object sender, RoutedEventArgs e )
 		{
 			if( m_busy )
@@ -181,6 +202,7 @@ namespace LHTTPD
 			}
 		}
 
+		// サーバーの停止を待機し、設定画面を操作可能に戻す。
 		private async Task StopAsync()
 		{
 			var server = m_server ;
@@ -199,6 +221,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 終了操作時にサーバーの停止を待ってウィンドウを閉じる。
 		private async void Window_ClosingAsync( object? sender, CancelEventArgs e )
 		{
 			if( m_closing || ( m_server == null && !m_busy ) )

@@ -10,13 +10,25 @@ using System.Text ;
 
 namespace LHTTPD
 {
+	/// <summary>
+	/// コマンドライン引数と保存設定に基づき HTTP・HTTPS サーバーを実行します。
+	/// </summary>
 	public class Program
 	{
+		// 既定の HTTP 待ち受けポート番号。
 		private const int DefaultHttpPort = 80 ;
+		// 既定の HTTPS 待ち受けポート番号。
 		private const int DefaultHttpsPort = 443 ;
+		// 受信を許可するリクエストヘッダーの最大バイト数。
 		private const int MaximumHeaderBytes = 32768 ;
+		// コンソールログの色と出力を排他制御するロック。
 		private static readonly object m_logLock = new() ;
 
+		/// <summary>
+		/// 設定を検証し、終了要求までサーバーを実行します。
+		/// </summary>
+		/// <param name="args">公開ルートや待ち受けポートを指定するコマンドライン引数。</param>
+		/// <returns>正常終了は 0、実行エラーは 1、引数や公開ルートのエラーは 2。</returns>
 		public static async Task<int> Main( string[] args )
 		{
 			Console.OutputEncoding = new UTF8Encoding( false ) ;
@@ -185,6 +197,7 @@ namespace LHTTPD
 			return 0 ;
 		}
 
+		// コマンドラインオプションの使い方を表示する。
 		private static void PrintUsage()
 		{
 			Console.WriteLine( "コマンドラインオプション:" ) ;
@@ -193,11 +206,13 @@ namespace LHTTPD
 			Console.WriteLine( "--help, -h このヘルプを表示します。保存済みの設定は引数で上書きできます。" ) ;
 		}
 
+		// パス区切り文字を実行環境の形式に統一する。
 		private static string NormalizePathSeparators( string path )
 		{
 			return path.Replace( '/', Path.DirectorySeparatorChar ).Replace( '\\', Path.DirectorySeparatorChar ) ;
 		}
 
+		// 停止要求まで接続を受け付け、各リクエストの処理を開始する。
 		private static async Task AcceptLoopAsync
 		(
 			TcpListener listener,
@@ -227,6 +242,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 接続の暗号化と要求の検証を行い、ファイル応答とアクセスログを生成する。
 		private static async Task HandleClientAsync
 		(
 			TcpClient client,
@@ -248,6 +264,7 @@ namespace LHTTPD
 				var responseStatus = 0 ;
 				string? error = null ;
 
+				// 応答ステータスを記録し、文字列の HTTP 応答を送信する。
 				Task RespondAsync( Stream stream, int statusCode, string reason, string body, string contentType,
 					bool headOnly, CancellationToken token, string extraHeaders = "" )
 				{
@@ -255,6 +272,7 @@ namespace LHTTPD
 					return WriteResponseAsync( stream, statusCode, reason, body, contentType, headOnly, token, extraHeaders ) ;
 				}
 
+				// 応答ステータスを記録し、バイト列の HTTP 応答を送信する。
 				Task RespondBytesAsync( Stream stream, int statusCode, string reason, byte[] body, string contentType,
 					bool headOnly, CancellationToken token )
 				{
@@ -404,8 +422,10 @@ namespace LHTTPD
 			}
 		}
 
+		// 要求と応答結果を制御文字のない色付きログとして出力する。
 		private static void WriteAccessLog( string method, string path, DateTime timestamp, int statusCode, string? error )
 		{
+			// ログ文字列の制御文字を空白に置換して単一行にする。
 			static string SingleLine( string value )
 			{
 				return new string( value.Select( character => char.IsControl( character ) ? ' ' : character ).ToArray() ) ;
@@ -440,6 +460,7 @@ namespace LHTTPD
 			}
 		}
 
+		// 拡張子に対応する MIME タイプを返す。
 		private static string GetContentType( string extension )
 		{
 			return extension.ToLowerInvariant() switch
@@ -460,6 +481,7 @@ namespace LHTTPD
 			} ;
 		}
 
+		// 文字列の本文を UTF-8 に変換して HTTP 応答を送信する。
 		private static Task WriteResponseAsync
 		(
 			Stream stream,
@@ -485,6 +507,7 @@ namespace LHTTPD
 			) ;
 		}
 
+		// HTTP ヘッダーとバイト列の本文を送信し、HEAD では本文を省略する。
 		private static async Task WriteResponseBytesAsync
 		(
 			Stream stream,
@@ -515,6 +538,7 @@ namespace LHTTPD
 			await stream.FlushAsync( cancellationToken ) ;
 		}
 
+		// 保存済みの localhost 証明書を読み込み、利用できない場合は自己署名証明書を生成する。
 		private static X509Certificate2 LoadOrCreateCertificate()
 		{
 			var folder = Path.Combine
